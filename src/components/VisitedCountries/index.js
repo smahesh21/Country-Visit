@@ -78,19 +78,34 @@ class VisitedCountries extends Component {
   state = {
     isCountryVisited: false,
     countriesList: initialCountriesList,
-    visitedCountriesList: [],
   }
 
-  onClickVisitCountry = activeId => {
-    const {countriesList, visitedCountriesList} = this.state
+  onClickRemoveCountry = activeId => {
+    const {countriesList} = this.state
     const country = countriesList.filter(
       eachCountry => eachCountry.id === activeId,
     )
-    country.isVisited = true
-    const updatedList = [...visitedCountriesList, country]
-    this.setState({
-      visitedCountriesList: updatedList,
-    })
+    const removedList = countriesList.filter(
+      eachCountry => eachCountry.id !== activeId,
+    )
+    country[0].isVisited = false
+    const updatedCountriesList = [...removedList, country[0]]
+    updatedCountriesList.sort()
+    this.setState({countriesList: updatedCountriesList})
+  }
+
+  onClickVisitCountry = activeId => {
+    const {countriesList} = this.state
+    const country = countriesList.filter(
+      eachCountry => eachCountry.id === activeId,
+    )
+    const removedList = countriesList.filter(
+      eachCountry => eachCountry.id !== activeId,
+    )
+    country[0].isVisited = true
+    const updatedCountriesList = [...removedList, country[0]]
+    updatedCountriesList.sort()
+    this.setState({countriesList: updatedCountriesList})
   }
 
   renderCountriesList = () => {
@@ -98,26 +113,26 @@ class VisitedCountries extends Component {
     return (
       <ul className="countries-list">
         {countriesList.map(eachCountry => {
-          const {name, id} = eachCountry
+          const {name, isVisited, id} = eachCountry
           const onClickVisit = () => {
             this.onClickVisitCountry(id)
           }
-          const buttonStyle = isCountryVisited
-            ? 'visited-button'
-            : 'visit-button'
-          const buttonText = isCountryVisited ? 'Visited' : 'Visit'
           return (
             <>
               <li className="country-item">
                 <p className="country-name">{name}</p>
 
-                <button
-                  type="button"
-                  onClick={onClickVisit}
-                  className={buttonStyle}
-                >
-                  {buttonText}
-                </button>
+                {isVisited ? (
+                  <p className="visited">Visited</p>
+                ) : (
+                  <button
+                    type="button"
+                    className="visit-button"
+                    onClick={onClickVisit}
+                  >
+                    Visit
+                  </button>
+                )}
               </li>
               <hr />
             </>
@@ -128,19 +143,32 @@ class VisitedCountries extends Component {
   }
 
   renderVisitedCountriesList = () => {
-    const {visitedCountriesList} = this.state
-    console.log(visitedCountriesList)
+    const {countriesList} = this.state
+    console.log(countriesList)
+    const visitedCountries = countriesList.filter(
+      eachCountry => eachCountry.isVisited === true,
+    )
     return (
       <ul className="visited-countries-list">
-        {visitedCountriesList.map(eachCountry => {
-          const {imageUrl, name} = eachCountry
+        {visitedCountries.map(eachCountry => {
+          console.log(eachCountry)
+          const {imageUrl, id, name} = eachCountry
+          console.log(imageUrl)
+          console.log(name)
+          const onClickRemove = () => {
+            this.onClickRemoveCountry(id)
+          }
           return (
             <li key={eachCountry.id}>
               <div className="visited-country-card">
                 <img src={imageUrl} className="country-image" alt="country" />
                 <div className="name-remove-container">
                   <p className="country-name">{name}</p>
-                  <button type="button" className="visited-button">
+                  <button
+                    type="button"
+                    onClick={onClickRemove}
+                    className="visited-button"
+                  >
                     Remove
                   </button>
                 </div>
@@ -153,7 +181,6 @@ class VisitedCountries extends Component {
   }
 
   render() {
-    const {isCountryVisited} = this.state
     return (
       <div className="visited-countries-container">
         <h1 className="heading">Countries</h1>
